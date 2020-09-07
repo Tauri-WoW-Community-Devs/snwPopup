@@ -1,0 +1,10 @@
+## Interface: 50400
+## Title: snwPopup
+## Author: snwflake
+## Version: v0.1.4
+
+## SavedVariables: snwDB
+
+## Notes: Removes popups
+
+snwPopup.lua
