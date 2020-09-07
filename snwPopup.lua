@@ -18,7 +18,7 @@ local tostring = tostring
 local snw = {}
 
 snw.dbg = false
-snw.v = 'v0.1.4'
+snw.v = 'v0.1.5'
 snw.Frame = CreateFrame("Frame")
 snw.Events = {}
 snw.storedDialogs = {}
