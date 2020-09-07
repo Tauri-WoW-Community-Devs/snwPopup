@@ -22,7 +22,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   DEFAULT_BUMP: 'none'
-                  INITIAL_VERSION: '0.1.4'
+                  INITIAL_VERSION: 0.1.4
 
                   WITH_V: true
 
