@@ -17,11 +17,16 @@ local tostring = tostring
 
 local snw = {}
 
-snw.dbg = false
-snw.v = 'v0.1.5'
-snw.Frame = CreateFrame("Frame")
-snw.Events = {}
-snw.storedDialogs = {}
+snw.dbg     = false
+snw.v       = 'v0.1.5'
+snw.Frame   = CreateFrame("Frame")
+snw.Events  = {}
+
+--[[
+  colors:
+  red,    b34343
+  green,  4eb343
+]]
 
 -- UTILITY METHODS ---------------------------------------------------------- --
 
@@ -32,6 +37,9 @@ local L = setmetatable({}, {__index = function(t, k)
   rawset(t, k, v)
   return v
 end})
+
+L['true']   = '|cffb34343shown|r'
+L['false']  = '|cffb34343hidden|r'
 
 function snw:debug(...)
   if not snw.dbg then return end
@@ -47,7 +55,7 @@ function snw:dmpTbl(t, i)
   if "table" ~= type(t) then snw:debug(t) return end
   if not i then i = 0 end
   if i > 10 then
-    snw:debug('[...]')
+    snw:print('[...]')
 		return
 	end
   for k, v in pairs(t) do
@@ -64,13 +72,17 @@ function snw:dmpTbl(t, i)
     else
       s = s .. tostring(v)
     end
-    snw:debug(v)
+    snw:print(v)
   end
 end
 
 -- SLASH HANDLER ------------------------------------------------------------ --
 
-SLASH_SNWDBG1 = '/snwdbg'
+SLASH_SNWDBG1   = '/snwdbg'
+SLASH_SNWLOOT1  = '/snwloot'
+SLASH_SNWDE1    = '/snwde'
+SLASH_SNWBIND1  = '/snwbind'
+
 SlashCmdList['SNWDBG'] = function(...)
   if select('#', ...) > 1 then -- the user is an idiot
     snw.dbg = select(1, ...)
@@ -80,20 +92,19 @@ SlashCmdList['SNWDBG'] = function(...)
   snw:print('debug set to ' .. snw.dbg)
 end
 
--- REMOVE CONFIRMATION DIALOG --------------------------------------------- --
-
-function snw:nukeBind(forceHide)
-  snw:debug('nukeBind')
-  if not forceHide then return end
-
-  StaticPopup_Hide('LOOT_BIND')
+SlashCmdList['SNWLOOT'] = function()
+  snw.db.loot = !snw.db.loot
+  snw:print('Loot popups are now ' .. L[snw.db.loot])
 end
 
-function snw:nukeRoll(forceHide)
-  snw:debug('nukeRoll')
-  if not forceHide then return end
+SlashCmdList['SNWDE'] = function()
+  snw.db.de = !snw.db.de
+  snw:print('DE popups are now ' .. L[snw.db.de])
+end
 
-  StaticPopup_Hide('CONFIRM_LOOT_ROLL')
+SlashCmdList['SNWBIND'] = function()
+  snw.db.bind = !snw.db.bind
+  snw:print('bind popups are now ' .. L[snw.db.bind])
 end
 
 -- EVENTS ------------------------------------------------------------------- --
@@ -101,41 +112,35 @@ end
 -- args: frame, ...
 -- because consistency
 function snw.Events:LOOT_BIND_CONFIRM(f, ...)
-  snw:dmpTbl(...)
-
+  if snw.db.bind then return end
   local id = ...
   if not id then id = 1 end
+
   ConfirmLootSlot(id)
-  snw:debug('Confirmed loot with id: ' .. id)
-  snw:nukeBind(true)
+  StaticPopup_Hide('LOOT_BIND')
 end
 
 function snw.Events:CONFIRM_LOOT_ROLL(...)
-  snw:dmpTbl(...)
-
+  if snw.db.loot then return end
   local id, rollType = ...
+
   ConfirmLootRoll(id, rollType)
-  snw:debug('Roll for id: ' .. id .. ', type: ' .. rollType)
-  snw:nukeRoll(true)
+  StaticPopup_Hide('CONFIRM_LOOT_ROLL')
 end
 
 function snw.Events:CONFIRM_DISENCHANT_ROLL(...)
-  snw:dmpTbl(...)
-
+  if snw.db.de then return end
   local id, rollType = ...
+
   ConfirmLootRoll(id, rollType)
-  snw:debug('DE roll for id: ' .. id .. ', type: ' .. rollType)
-  snw:nukeRoll(true)
+  StaticPopup_Hide('CONFIRM_LOOT_ROLL')
 end
 
 function snw.Events:PLAYER_LOGIN(...)
-  snw:print(L["We up bois!"] .. ' ' .. snw.v)
+  -- probably not even needed
 end
 
 function snw.Events:ADDON_LOADED(addon)
-  snw:debug('Addon loaded ' .. addon)
-  -- ????
-  -- despite namespace, **all** addons pass this smh
   if addon == 'snwPopup' then
     -- bruteforce, since neither StaticPopup_Hide,
     -- nor forcing StaticPopups table works
@@ -144,16 +149,20 @@ function snw.Events:ADDON_LOADED(addon)
     -- UIParent:UnregisterEvent('LOOT_BIND_CONFIRM')
 
     if snwDB then
-      -- iterate db and actually set values, cba
+      snw.db.loot = snwDB.loot
+      snw.db.de   = snwDB.de
+      snw.db.bind = snwDB.bind
     else
-      snw:debug('No db file found')
-      -- set default values once there are actually some xd
+      snw:print('No db file found')
+      snw:print('Default values set to |cffb34343hide all|r')
+      snw.db.loot = false
+      snw.db.de   = false
+      snw.db.bind = false
     end
   end
 end
 
 function snw.Events:PLAYER_LOGOUT(...)
-  snw:debug('Logout')
   snwDB = snw.db
 end
 
