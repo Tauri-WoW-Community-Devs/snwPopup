@@ -5,21 +5,10 @@ on:
       - master
 
 jobs:
-  preBuild:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2.3.2
-        with:
-          fetch-depth: '0'
-      - name: Check for Release
-        id: release_check
-        run: |
-          echo "::set-output name=isRelease::$(git log -1 --oneline | grep -o _Release)"
   release:
     runs-on: ubuntu-latest
     needs: preBuild
-    if: "contains(${{ needs.preBuild.outputs.isRelease }}, '_Release')"
+    if: "startsWith(${{ github.event.commits[0].message }}, 'release')"
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.2
