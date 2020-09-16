@@ -93,17 +93,17 @@ SlashCmdList['SNWDBG'] = function(...)
 end
 
 SlashCmdList['SNWLOOT'] = function()
-  snw.db.loot = !snw.db.loot
+  snw.db.loot = not snw.db.loot
   snw:print('Loot popups are now ' .. L[snw.db.loot])
 end
 
 SlashCmdList['SNWDE'] = function()
-  snw.db.de = !snw.db.de
+  snw.db.de = not snw.db.de
   snw:print('DE popups are now ' .. L[snw.db.de])
 end
 
 SlashCmdList['SNWBIND'] = function()
-  snw.db.bind = !snw.db.bind
+  snw.db.bind = not snw.db.bind
   snw:print('bind popups are now ' .. L[snw.db.bind])
 end
 
